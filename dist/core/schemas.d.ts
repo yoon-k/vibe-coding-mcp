@@ -153,13 +153,28 @@ export declare const CollectCodeContextSchema: z.ZodObject<{
 }>;
 export declare const SummarizeDesignDecisionsSchema: z.ZodObject<{
     conversationLog: z.ZodString;
-    language: z.ZodDefault<z.ZodOptional<z.ZodEnum<["en", "ko"]>>>;
+    projectContext: z.ZodOptional<z.ZodString>;
+    language: z.ZodDefault<z.ZodOptional<z.ZodEnum<["en", "ko", "auto"]>>>;
+    includeImportanceScore: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+    extractRelatedCode: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+    maxDecisions: z.ZodDefault<z.ZodOptional<z.ZodNumber>>;
+    useAI: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
 }, "strip", z.ZodTypeAny, {
-    language: "en" | "ko";
+    language: "en" | "ko" | "auto";
     conversationLog: string;
+    includeImportanceScore: boolean;
+    extractRelatedCode: boolean;
+    maxDecisions: number;
+    useAI: boolean;
+    projectContext?: string | undefined;
 }, {
     conversationLog: string;
-    language?: "en" | "ko" | undefined;
+    language?: "en" | "ko" | "auto" | undefined;
+    projectContext?: string | undefined;
+    includeImportanceScore?: boolean | undefined;
+    extractRelatedCode?: boolean | undefined;
+    maxDecisions?: number | undefined;
+    useAI?: boolean | undefined;
 }>;
 export declare const GenerateDevDocumentSchema: z.ZodObject<{
     documentType: z.ZodEnum<["README", "DESIGN", "TUTORIAL", "CHANGELOG", "API", "ARCHITECTURE"]>;

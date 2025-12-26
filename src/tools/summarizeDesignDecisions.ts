@@ -1,5 +1,6 @@
 import { DesignDecision } from '../types/index.js';
 import { generateId, getCurrentTimestamp } from '../utils/markdown.js';
+import { isAIAvailable, analyzeWithAI, type AIAnalysisResult } from '../core/ai.js';
 
 export interface SummarizeDesignDecisionsInput {
   conversationLog: string;
@@ -8,6 +9,7 @@ export interface SummarizeDesignDecisionsInput {
   includeImportanceScore?: boolean;
   extractRelatedCode?: boolean;
   maxDecisions?: number;
+  useAI?: boolean;  // New: Use Claude AI for enhanced analysis
 }
 
 export interface EnhancedDesignDecision extends DesignDecision {
@@ -28,6 +30,10 @@ export interface SummarizeDesignDecisionsOutput {
     byImportance: Record<string, number>;
     topKeywords: string[];
   };
+  // AI-enhanced fields (only present when useAI=true)
+  aiInsights?: string[];
+  aiRecommendations?: string[];
+  usedAI?: boolean;
 }
 
 // 디자인 결정 카테고리 키워드 (영어 + 한국어)
@@ -267,15 +273,101 @@ function matchPatterns(text: string, patterns: RegExp[]): string[] {
  * @param input.includeImportanceScore - Whether to include importance scoring
  * @param input.extractRelatedCode - Whether to extract related code blocks
  * @param input.maxDecisions - Maximum number of decisions to extract
+ * @param input.useAI - Whether to use Claude AI for enhanced analysis
  * @returns Object containing decisions array, summary text, and statistics
  *
  * @example
- * const result = summarizeDesignDecisions({
+ * const result = await summarizeDesignDecisions({
  *   conversationLog: "We decided to use React instead of Vue because...",
- *   language: 'auto'
+ *   language: 'auto',
+ *   useAI: true
  * });
  */
-export function summarizeDesignDecisions(input: SummarizeDesignDecisionsInput): SummarizeDesignDecisionsOutput {
+export async function summarizeDesignDecisions(input: SummarizeDesignDecisionsInput): Promise<SummarizeDesignDecisionsOutput> {
+  // If AI is requested and available, use AI-enhanced analysis
+  if (input.useAI && isAIAvailable()) {
+    return summarizeWithAI(input);
+  }
+
+  return summarizeWithPatterns(input);
+}
+
+/**
+ * AI-enhanced design decision analysis using Claude
+ */
+async function summarizeWithAI(input: SummarizeDesignDecisionsInput): Promise<SummarizeDesignDecisionsOutput> {
+  const lang = input.language === 'auto' || !input.language
+    ? detectLanguage(input.conversationLog)
+    : input.language;
+
+  try {
+    const aiResult = await analyzeWithAI(input.conversationLog, {
+      projectContext: input.projectContext,
+      language: lang,
+      maxDecisions: input.maxDecisions || 10
+    });
+
+    // Convert AI decisions to EnhancedDesignDecision format
+    const decisions: EnhancedDesignDecision[] = aiResult.decisions.map(d => ({
+      id: generateId(),
+      title: d.title,
+      description: d.description,
+      rationale: d.rationale,
+      alternatives: d.alternatives,
+      category: d.category,
+      timestamp: getCurrentTimestamp(),
+      importance: d.importance,
+      importanceScore: d.importance === 'high' ? 85 : d.importance === 'medium' ? 55 : 25,
+      tradeoffs: d.tradeoffs,
+      keywords: d.relatedTopics || [],
+      relatedCode: []
+    }));
+
+    // Calculate stats
+    const byCategory: Record<string, number> = {};
+    const byImportance: Record<string, number> = {};
+    const allKeywords: string[] = [];
+
+    for (const d of decisions) {
+      byCategory[d.category] = (byCategory[d.category] || 0) + 1;
+      byImportance[d.importance] = (byImportance[d.importance] || 0) + 1;
+      allKeywords.push(...d.keywords);
+    }
+
+    const keywordCounts: Record<string, number> = {};
+    for (const kw of allKeywords) {
+      keywordCounts[kw] = (keywordCounts[kw] || 0) + 1;
+    }
+    const topKeywords = Object.entries(keywordCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([kw]) => kw);
+
+    return {
+      decisions,
+      summary: aiResult.summary,
+      stats: {
+        totalDecisions: decisions.length,
+        byCategory,
+        byImportance,
+        topKeywords
+      },
+      aiInsights: aiResult.insights,
+      aiRecommendations: aiResult.recommendations,
+      usedAI: true
+    };
+  } catch (error) {
+    // Fallback to pattern-based analysis if AI fails
+    console.warn('AI analysis failed, falling back to pattern-based analysis:', error);
+    const result = summarizeWithPatterns(input);
+    return { ...result, usedAI: false };
+  }
+}
+
+/**
+ * Pattern-based design decision analysis (original implementation)
+ */
+function summarizeWithPatterns(input: SummarizeDesignDecisionsInput): SummarizeDesignDecisionsOutput {
   const lang = input.language === 'auto' || !input.language
     ? detectLanguage(input.conversationLog)
     : input.language;
@@ -394,13 +486,14 @@ export function summarizeDesignDecisions(input: SummarizeDesignDecisionsInput): 
       byCategory,
       byImportance,
       topKeywords
-    }
+    },
+    usedAI: false
   };
 }
 
 export const summarizeDesignDecisionsSchema = {
   name: 'muse_summarize_design_decisions',
-  description: 'Extracts and analyzes key architectural and design decisions from conversation logs. Supports both English and Korean, with importance scoring and keyword extraction.',
+  description: 'Extracts and analyzes key architectural and design decisions from conversation logs. Supports both English and Korean, with importance scoring and keyword extraction. Set useAI=true for Claude-powered enhanced analysis.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -428,6 +521,10 @@ export const summarizeDesignDecisionsSchema = {
       maxDecisions: {
         type: 'number',
         description: 'Maximum number of decisions to extract (default: 20)'
+      },
+      useAI: {
+        type: 'boolean',
+        description: 'Use Claude AI for enhanced analysis. Requires ANTHROPIC_API_KEY environment variable. (default: false)'
       }
     },
     required: ['conversationLog']

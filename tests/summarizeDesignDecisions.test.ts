@@ -2,8 +2,8 @@ import { summarizeDesignDecisions } from '../src/tools/summarizeDesignDecisions.
 
 describe('summarizeDesignDecisions', () => {
   describe('language detection', () => {
-    it('should detect English text', () => {
-      const result = summarizeDesignDecisions({
+    it('should detect English text', async () => {
+      const result = await summarizeDesignDecisions({
         conversationLog: 'We decided to use React because it has a large ecosystem.',
         language: 'auto'
       });
@@ -12,8 +12,8 @@ describe('summarizeDesignDecisions', () => {
       expect(result.decisions).toBeDefined();
     });
 
-    it('should detect Korean text', () => {
-      const result = summarizeDesignDecisions({
+    it('should detect Korean text', async () => {
+      const result = await summarizeDesignDecisions({
         conversationLog: 'React를 사용하기로 결정했습니다. 생태계가 크기 때문입니다.',
         language: 'auto'
       });
@@ -24,8 +24,8 @@ describe('summarizeDesignDecisions', () => {
   });
 
   describe('decision extraction', () => {
-    it('should extract decisions from English text', () => {
-      const result = summarizeDesignDecisions({
+    it('should extract decisions from English text', async () => {
+      const result = await summarizeDesignDecisions({
         conversationLog: `
           We decided to use TypeScript instead of JavaScript because of type safety.
           We chose React over Vue for its ecosystem.
@@ -38,8 +38,8 @@ describe('summarizeDesignDecisions', () => {
       expect(result.stats.totalDecisions).toBeGreaterThan(0);
     });
 
-    it('should extract decisions from Korean text', () => {
-      const result = summarizeDesignDecisions({
+    it('should extract decisions from Korean text', async () => {
+      const result = await summarizeDesignDecisions({
         conversationLog: `
           TypeScript를 선택했습니다. 타입 안정성 때문입니다.
           Vue 대신 React를 사용하기로 결정했습니다.
@@ -50,8 +50,8 @@ describe('summarizeDesignDecisions', () => {
       expect(result.decisions.length).toBeGreaterThanOrEqual(0);
     });
 
-    it('should respect maxDecisions limit', () => {
-      const result = summarizeDesignDecisions({
+    it('should respect maxDecisions limit', async () => {
+      const result = await summarizeDesignDecisions({
         conversationLog: `
           We decided to use A. We chose B. We selected C. We picked D. We went with E.
         `,
@@ -63,8 +63,8 @@ describe('summarizeDesignDecisions', () => {
   });
 
   describe('importance scoring', () => {
-    it('should assign higher importance to critical decisions', () => {
-      const result = summarizeDesignDecisions({
+    it('should assign higher importance to critical decisions', async () => {
+      const result = await summarizeDesignDecisions({
         conversationLog: 'This critical architectural decision is essential for the system.',
         includeImportanceScore: true
       });
@@ -76,8 +76,8 @@ describe('summarizeDesignDecisions', () => {
   });
 
   describe('categorization', () => {
-    it('should categorize architecture decisions', () => {
-      const result = summarizeDesignDecisions({
+    it('should categorize architecture decisions', async () => {
+      const result = await summarizeDesignDecisions({
         conversationLog: 'We decided on a microservice architecture for scalability.'
       });
 
@@ -86,8 +86,8 @@ describe('summarizeDesignDecisions', () => {
       expect(result.decisions).toBeDefined();
     });
 
-    it('should categorize library decisions', () => {
-      const result = summarizeDesignDecisions({
+    it('should categorize library decisions', async () => {
+      const result = await summarizeDesignDecisions({
         conversationLog: 'We chose the lodash library for utility functions.'
       });
 
@@ -96,8 +96,8 @@ describe('summarizeDesignDecisions', () => {
   });
 
   describe('statistics', () => {
-    it('should provide category breakdown', () => {
-      const result = summarizeDesignDecisions({
+    it('should provide category breakdown', async () => {
+      const result = await summarizeDesignDecisions({
         conversationLog: 'We decided to use React. We chose microservices architecture.'
       });
 
@@ -108,8 +108,8 @@ describe('summarizeDesignDecisions', () => {
   });
 
   describe('code extraction', () => {
-    it('should extract related code blocks when enabled', () => {
-      const result = summarizeDesignDecisions({
+    it('should extract related code blocks when enabled', async () => {
+      const result = await summarizeDesignDecisions({
         conversationLog: `
           We decided to use this pattern:
           \`\`\`typescript
@@ -122,8 +122,8 @@ describe('summarizeDesignDecisions', () => {
       expect(result).toBeDefined();
     });
 
-    it('should not extract code when disabled', () => {
-      const result = summarizeDesignDecisions({
+    it('should not extract code when disabled', async () => {
+      const result = await summarizeDesignDecisions({
         conversationLog: `
           We decided to use this pattern:
           \`\`\`typescript
@@ -140,8 +140,8 @@ describe('summarizeDesignDecisions', () => {
   });
 
   describe('summary generation', () => {
-    it('should generate summary when decisions are found', () => {
-      const result = summarizeDesignDecisions({
+    it('should generate summary when decisions are found', async () => {
+      const result = await summarizeDesignDecisions({
         conversationLog: 'We decided to use React for the frontend.'
       });
 
@@ -149,12 +149,23 @@ describe('summarizeDesignDecisions', () => {
       expect(typeof result.summary).toBe('string');
     });
 
-    it('should generate appropriate summary when no decisions found', () => {
-      const result = summarizeDesignDecisions({
+    it('should generate appropriate summary when no decisions found', async () => {
+      const result = await summarizeDesignDecisions({
         conversationLog: 'Hello, how are you today?'
       });
 
       expect(result.summary).toBeDefined();
+    });
+  });
+
+  describe('AI mode', () => {
+    it('should have usedAI flag set to false when AI not used', async () => {
+      const result = await summarizeDesignDecisions({
+        conversationLog: 'We decided to use React.',
+        useAI: false
+      });
+
+      expect(result.usedAI).toBe(false);
     });
   });
 });

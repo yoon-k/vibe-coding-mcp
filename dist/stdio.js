@@ -7,6 +7,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { CallToolRequestSchema, ListToolsRequestSchema, } from '@modelcontextprotocol/sdk/types.js';
 // Core
 import { createErrorResponse, ToolError } from './core/errors.js';
+import { initializeAI } from './core/ai.js';
 import { validateInput, CollectCodeContextSchema, SummarizeDesignDecisionsSchema, GenerateDevDocumentSchema, NormalizeForPlatformSchema, PublishDocumentSchema, CreateSessionLogSchema, AnalyzeCodeSchema, } from './core/schemas.js';
 // Tools
 import { collectCodeContext, collectCodeContextSchema } from './tools/collectCodeContext.js';
@@ -22,7 +23,7 @@ const toolHandlers = {
         const validated = validateInput(CollectCodeContextSchema, args);
         return collectCodeContext(validated);
     },
-    muse_summarize_design_decisions: (args) => {
+    muse_summarize_design_decisions: async (args) => {
         const validated = validateInput(SummarizeDesignDecisionsSchema, args);
         return summarizeDesignDecisions(validated);
     },
@@ -52,7 +53,7 @@ function isValidToolName(name) {
 }
 const server = new Server({
     name: 'vibe-coding-mcp',
-    version: '2.0.0',
+    version: '2.4.0',
 }, {
     capabilities: {
         tools: {},
@@ -91,6 +92,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 });
 // Start stdio transport
 async function main() {
+    // Initialize AI if ANTHROPIC_API_KEY is available
+    const aiEnabled = initializeAI();
+    if (aiEnabled) {
+        console.error('[vibe-coding-mcp] AI features enabled (ANTHROPIC_API_KEY found)');
+    }
     const transport = new StdioServerTransport();
     await server.connect(transport);
 }

@@ -43,7 +43,12 @@ export const CollectCodeContextSchema = z.object({
 });
 export const SummarizeDesignDecisionsSchema = z.object({
     conversationLog: z.string().min(1, 'Conversation log is required'),
-    language: z.enum(['en', 'ko']).optional().default('en')
+    projectContext: z.string().optional(),
+    language: z.enum(['en', 'ko', 'auto']).optional().default('auto'),
+    includeImportanceScore: z.boolean().optional().default(true),
+    extractRelatedCode: z.boolean().optional().default(true),
+    maxDecisions: z.number().min(1).max(50).optional().default(20),
+    useAI: z.boolean().optional().default(false)
 });
 export const GenerateDevDocumentSchema = z.object({
     documentType: z.enum(['README', 'DESIGN', 'TUTORIAL', 'CHANGELOG', 'API', 'ARCHITECTURE']),

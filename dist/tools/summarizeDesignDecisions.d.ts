@@ -6,6 +6,7 @@ export interface SummarizeDesignDecisionsInput {
     includeImportanceScore?: boolean;
     extractRelatedCode?: boolean;
     maxDecisions?: number;
+    useAI?: boolean;
 }
 export interface EnhancedDesignDecision extends DesignDecision {
     importance: 'high' | 'medium' | 'low';
@@ -24,6 +25,9 @@ export interface SummarizeDesignDecisionsOutput {
         byImportance: Record<string, number>;
         topKeywords: string[];
     };
+    aiInsights?: string[];
+    aiRecommendations?: string[];
+    usedAI?: boolean;
 }
 /**
  * Analyzes conversation logs to extract and summarize design decisions
@@ -35,15 +39,17 @@ export interface SummarizeDesignDecisionsOutput {
  * @param input.includeImportanceScore - Whether to include importance scoring
  * @param input.extractRelatedCode - Whether to extract related code blocks
  * @param input.maxDecisions - Maximum number of decisions to extract
+ * @param input.useAI - Whether to use Claude AI for enhanced analysis
  * @returns Object containing decisions array, summary text, and statistics
  *
  * @example
- * const result = summarizeDesignDecisions({
+ * const result = await summarizeDesignDecisions({
  *   conversationLog: "We decided to use React instead of Vue because...",
- *   language: 'auto'
+ *   language: 'auto',
+ *   useAI: true
  * });
  */
-export declare function summarizeDesignDecisions(input: SummarizeDesignDecisionsInput): SummarizeDesignDecisionsOutput;
+export declare function summarizeDesignDecisions(input: SummarizeDesignDecisionsInput): Promise<SummarizeDesignDecisionsOutput>;
 export declare const summarizeDesignDecisionsSchema: {
     name: string;
     description: string;
@@ -72,6 +78,10 @@ export declare const summarizeDesignDecisionsSchema: {
                 description: string;
             };
             maxDecisions: {
+                type: string;
+                description: string;
+            };
+            useAI: {
                 type: string;
                 description: string;
             };

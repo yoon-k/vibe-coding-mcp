@@ -12,6 +12,7 @@ import {
 
 // Core
 import { createErrorResponse, ToolError } from './core/errors.js';
+import { initializeAI, isAIAvailable } from './core/ai.js';
 import {
   validateInput,
   CollectCodeContextSchema,
@@ -39,7 +40,7 @@ const toolHandlers = {
     return collectCodeContext(validated as Parameters<typeof collectCodeContext>[0]);
   },
 
-  muse_summarize_design_decisions: (args: unknown) => {
+  muse_summarize_design_decisions: async (args: unknown) => {
     const validated = validateInput(SummarizeDesignDecisionsSchema, args);
     return summarizeDesignDecisions(validated as Parameters<typeof summarizeDesignDecisions>[0]);
   },
@@ -79,7 +80,7 @@ function isValidToolName(name: string): name is ToolName {
 const server = new Server(
   {
     name: 'vibe-coding-mcp',
-    version: '2.0.0',
+    version: '2.4.0',
   },
   {
     capabilities: {
@@ -125,6 +126,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 // Start stdio transport
 async function main() {
+  // Initialize AI if ANTHROPIC_API_KEY is available
+  const aiEnabled = initializeAI();
+  if (aiEnabled) {
+    console.error('[vibe-coding-mcp] AI features enabled (ANTHROPIC_API_KEY found)');
+  }
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }

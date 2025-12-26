@@ -42,6 +42,12 @@ This MCP server provides 7 tools for managing vibe coding documentation:
 - **AST Memoization**: Cached code analysis for improved performance
 - **Test Coverage**: 81 tests with 85%+ coverage on core modules
 
+### AI-Powered Analysis (v2.4)
+- **Claude AI Integration**: Use Claude AI for enhanced design decision analysis
+- **Smart Summarization**: AI-generated insights and recommendations
+- **Fallback Support**: Automatic fallback to pattern-based analysis when AI unavailable
+- **Optional Feature**: Enable with `useAI: true` parameter
+
 ## Installation
 
 ### Claude Code (Recommended)
@@ -77,6 +83,9 @@ Add to `claude_desktop_config.json`:
 ## Environment Variables
 
 ```env
+# Anthropic API (optional, for AI-powered analysis)
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+
 # Notion API (optional)
 NOTION_API_KEY=your_notion_api_key_here
 NOTION_DATABASE_ID=your_database_id_here
