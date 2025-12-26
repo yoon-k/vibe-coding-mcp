@@ -124,6 +124,63 @@ export const AnalyzeCodeSchema = z.object({
     diagramTypes: z.array(z.enum(['class', 'flowchart', 'dependency', 'all'])).optional().default(['all']),
     useAI: z.boolean().optional().default(false)
 });
+export const ExportSessionSchema = z.object({
+    sessionIds: z.array(z.string()).optional(),
+    format: z.enum(['markdown', 'json', 'html']),
+    outputPath: z.string().optional(),
+    includeMetadata: z.boolean().optional().default(true),
+    includeCodeBlocks: z.boolean().optional().default(true),
+    includeDesignDecisions: z.boolean().optional().default(true),
+    template: z.enum(['default', 'minimal', 'detailed', 'report']).optional().default('default'),
+    title: z.string().optional(),
+    bundleMultiple: z.boolean().optional().default(true)
+});
+export const ProjectProfileSchema = z.object({
+    action: z.enum(['create', 'get', 'update', 'delete', 'list', 'setActive', 'getActive', 'clone']),
+    profileId: z.string().optional(),
+    name: z.string().optional(),
+    newName: z.string().optional(),
+    description: z.string().optional(),
+    projectPath: z.string().optional(),
+    repository: z.string().optional(),
+    version: z.string().optional(),
+    publishing: z.object({
+        defaultPlatform: z.enum(['notion', 'github-wiki', 'obsidian', 'confluence', 'slack', 'discord']).optional(),
+        platformSettings: z.record(z.unknown()).optional(),
+        autoPublish: z.boolean().optional()
+    }).optional(),
+    codeAnalysis: z.object({
+        defaultLanguage: z.enum(['typescript', 'javascript', 'python', 'go']).optional(),
+        defaultDiagramTypes: z.array(z.enum(['class', 'flowchart', 'dependency', 'all'])).optional(),
+        excludePatterns: z.array(z.string()).optional(),
+        useAI: z.boolean().optional()
+    }).optional(),
+    documentation: z.object({
+        defaultDocType: z.enum(['README', 'DESIGN', 'TUTORIAL', 'CHANGELOG', 'API', 'ARCHITECTURE']).optional(),
+        language: z.enum(['en', 'ko']).optional(),
+        author: z.string().optional(),
+        license: z.string().optional(),
+        includeTableOfContents: z.boolean().optional()
+    }).optional(),
+    defaultTags: z.array(z.string()).optional(),
+    tagCategories: z.array(z.object({
+        name: z.string(),
+        tags: z.array(z.string())
+    })).optional(),
+    team: z.object({
+        name: z.string(),
+        members: z.array(z.object({
+            name: z.string(),
+            role: z.string().optional(),
+            email: z.string().optional()
+        })).optional()
+    }).optional(),
+    metadata: z.record(z.unknown()).optional(),
+    limit: z.number().optional(),
+    offset: z.number().optional(),
+    sortBy: z.enum(['createdAt', 'updatedAt', 'name']).optional(),
+    sortOrder: z.enum(['asc', 'desc']).optional()
+});
 export const SessionHistorySchema = z.object({
     action: z.enum(['save', 'get', 'update', 'delete', 'list', 'search', 'stats']),
     sessionId: z.string().optional(),

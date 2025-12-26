@@ -23,6 +23,8 @@ import {
   CreateSessionLogSchema,
   AnalyzeCodeSchema,
   SessionHistorySchema,
+  ExportSessionSchema,
+  ProjectProfileSchema,
 } from './core/schemas.js';
 
 // Tools
@@ -34,6 +36,8 @@ import { publishDocument, publishDocumentSchema } from './tools/publishDocument.
 import { createSessionLog, createSessionLogSchema } from './tools/createSessionLog.js';
 import { analyzeCodeTool, analyzeCodeSchema } from './tools/analyzeCode.js';
 import { sessionHistoryTool, sessionHistorySchema } from './tools/sessionHistory.js';
+import { exportSessionTool, exportSessionSchema } from './tools/exportSession.js';
+import { projectProfileTool, projectProfileSchema } from './tools/projectProfile.js';
 
 // Tool handlers with validation
 const toolHandlers = {
@@ -76,6 +80,16 @@ const toolHandlers = {
     const validated = validateInput(SessionHistorySchema, args);
     return sessionHistoryTool(validated as Parameters<typeof sessionHistoryTool>[0]);
   },
+
+  muse_export_session: async (args: unknown) => {
+    const validated = validateInput(ExportSessionSchema, args);
+    return exportSessionTool(validated as Parameters<typeof exportSessionTool>[0]);
+  },
+
+  muse_project_profile: async (args: unknown) => {
+    const validated = validateInput(ProjectProfileSchema, args);
+    return projectProfileTool(validated as Parameters<typeof projectProfileTool>[0]);
+  },
 } as const;
 
 type ToolName = keyof typeof toolHandlers;
@@ -108,6 +122,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       createSessionLogSchema,
       analyzeCodeSchema,
       sessionHistorySchema,
+      exportSessionSchema,
+      projectProfileSchema,
     ],
   };
 });

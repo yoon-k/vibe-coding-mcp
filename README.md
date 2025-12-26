@@ -4,7 +4,7 @@ MCP server that automatically collects, summarizes, documents, and publishes cod
 
 ## Features
 
-This MCP server provides 7 tools for managing vibe coding documentation:
+This MCP server provides 10 tools for managing vibe coding documentation:
 
 | Tool | Description |
 |------|-------------|
@@ -16,6 +16,8 @@ This MCP server provides 7 tools for managing vibe coding documentation:
 | `muse_create_session_log` | Creates daily or session-based vibe coding session logs |
 | `muse_analyze_code` | AST-based code analysis with Mermaid diagram generation |
 | `muse_session_history` | Manages session history - save, retrieve, search past sessions |
+| `muse_export_session` | Exports sessions to Markdown, JSON, or HTML formats |
+| `muse_project_profile` | Manages project-specific settings and configurations |
 
 ### Additional Features (v2.0)
 - **AST Parsing**: TypeScript, Python, Go code analysis
@@ -54,6 +56,21 @@ This MCP server provides 7 tools for managing vibe coding documentation:
 - **Issue Detection**: Identify potential bugs, security vulnerabilities, and code smells
 - **Improvement Suggestions**: AI-generated recommendations for better code
 - **Works with AST**: Combines AI insights with AST-based analysis for comprehensive results
+
+### Session History (v2.6)
+- **Persistent Storage**: Save coding sessions to local JSON files
+- **CRUD Operations**: Create, read, update, delete sessions
+- **Search & Filter**: Find past sessions by keyword, tags, or date
+- **Statistics**: Track total sessions, code contexts, and design decisions
+
+### Session Export & Project Profiles (v2.7)
+- **Session Export**: Export sessions to Markdown, JSON, or HTML formats
+- **Multiple Templates**: Default, minimal, detailed, and report templates
+- **Project Profiles**: Manage project-specific settings and configurations
+- **Publishing Config**: Default platforms and settings per project
+- **Code Analysis Config**: Language preferences and diagram types
+- **Documentation Config**: Default document types, language, author info
+- **Team Management**: Store team member information per project
 
 ## Installation
 
@@ -162,7 +179,7 @@ src/
 │   ├── security.ts       # Path traversal, SSRF, timeout utilities
 │   ├── logger.ts         # Structured JSON logging
 │   └── config.ts         # Platform configuration validation
-├── tools/                # 7 MCP tools
+├── tools/                # 10 MCP tools
 ├── platforms/            # Notion, GitHub Wiki, Obsidian, Confluence, Slack, Discord
 ├── types/                # TypeScript interfaces
 └── utils/                # Markdown, AST, diagram utilities

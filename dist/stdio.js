@@ -8,7 +8,7 @@ import { CallToolRequestSchema, ListToolsRequestSchema, } from '@modelcontextpro
 // Core
 import { createErrorResponse, ToolError } from './core/errors.js';
 import { initializeAI } from './core/ai.js';
-import { validateInput, CollectCodeContextSchema, SummarizeDesignDecisionsSchema, GenerateDevDocumentSchema, NormalizeForPlatformSchema, PublishDocumentSchema, CreateSessionLogSchema, AnalyzeCodeSchema, SessionHistorySchema, } from './core/schemas.js';
+import { validateInput, CollectCodeContextSchema, SummarizeDesignDecisionsSchema, GenerateDevDocumentSchema, NormalizeForPlatformSchema, PublishDocumentSchema, CreateSessionLogSchema, AnalyzeCodeSchema, SessionHistorySchema, ExportSessionSchema, ProjectProfileSchema, } from './core/schemas.js';
 // Tools
 import { collectCodeContext, collectCodeContextSchema } from './tools/collectCodeContext.js';
 import { summarizeDesignDecisions, summarizeDesignDecisionsSchema } from './tools/summarizeDesignDecisions.js';
@@ -18,6 +18,8 @@ import { publishDocument, publishDocumentSchema } from './tools/publishDocument.
 import { createSessionLog, createSessionLogSchema } from './tools/createSessionLog.js';
 import { analyzeCodeTool, analyzeCodeSchema } from './tools/analyzeCode.js';
 import { sessionHistoryTool, sessionHistorySchema } from './tools/sessionHistory.js';
+import { exportSessionTool, exportSessionSchema } from './tools/exportSession.js';
+import { projectProfileTool, projectProfileSchema } from './tools/projectProfile.js';
 // Tool handlers with validation
 const toolHandlers = {
     muse_collect_code_context: (args) => {
@@ -52,6 +54,14 @@ const toolHandlers = {
         const validated = validateInput(SessionHistorySchema, args);
         return sessionHistoryTool(validated);
     },
+    muse_export_session: async (args) => {
+        const validated = validateInput(ExportSessionSchema, args);
+        return exportSessionTool(validated);
+    },
+    muse_project_profile: async (args) => {
+        const validated = validateInput(ProjectProfileSchema, args);
+        return projectProfileTool(validated);
+    },
 };
 function isValidToolName(name) {
     return name in toolHandlers;
@@ -76,6 +86,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             createSessionLogSchema,
             analyzeCodeSchema,
             sessionHistorySchema,
+            exportSessionSchema,
+            projectProfileSchema,
         ],
     };
 });
