@@ -29,54 +29,32 @@ This MCP server provides 7 tools for managing vibe coding documentation:
 - **Security**: Command injection prevention (exec → spawn), path sanitization
 - **Performance**: LRU cache, regex cache, memoization utilities
 
-## Quick Start (HTTP Server)
+## Installation
+
+### Claude Code (Recommended)
 
 ```bash
-# Install dependencies
-npm install
-
-# Build
-npm run build
-
-# Start server
-npm start
+claude mcp add vibe-coding-mcp npx github:MUSE-CODE-SPACE/vibe-coding-mcp
 ```
 
-Server will run on `http://localhost:3000`
+### Claude Desktop
 
-### Endpoints
+Add to `claude_desktop_config.json`:
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Health check & server info |
-| `/sse` | GET | SSE connection for MCP |
-| `/message` | POST | Message endpoint for MCP |
-
-## Deploy to Railway
-
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template)
-
-Or manually:
-
-```bash
-railway login
-railway init
-railway up
+```json
+{
+  "mcpServers": {
+    "vibe-coding-mcp": {
+      "command": "npx",
+      "args": ["github:MUSE-CODE-SPACE/vibe-coding-mcp"]
+    }
+  }
+}
 ```
-
-## Usage with PlayMCP
-
-1. Deploy to Railway (or any hosting service)
-2. Get your server URL (e.g., `https://your-app.railway.app`)
-3. Register on [PlayMCP](https://playmcp.kakao.com/)
-4. Enter your SSE endpoint: `https://your-app.railway.app/sse`
 
 ## Environment Variables
 
 ```env
-# Server Port (optional, default: 3000)
-PORT=3000
-
 # Notion API (optional, for publish_document)
 NOTION_API_KEY=your_notion_api_key_here
 NOTION_DATABASE_ID=your_database_id_here
@@ -122,8 +100,7 @@ Claude: [Uses collect_code_context → create_session_log]
 
 ```
 src/
-├── index.ts              # HTTP/SSE server (Railway)
-├── stdio.ts              # stdio server (Claude Desktop)
+├── stdio.ts              # MCP server entry point
 ├── core/
 │   ├── schemas.ts        # Zod validation schemas
 │   ├── errors.ts         # Structured error classes
