@@ -51,5 +51,5 @@ export interface CodeAnalysis {
 export declare function analyzeTypeScript(code: string): CodeAnalysis;
 export declare function analyzePython(code: string): CodeAnalysis;
 export declare function analyzeGo(code: string): CodeAnalysis;
-export declare function analyzeCode(code: string, language?: string): CodeAnalysis;
+export declare const analyzeCode: (args_0: string, args_1: string | undefined) => CodeAnalysis;
 //# sourceMappingURL=astParser.d.ts.map

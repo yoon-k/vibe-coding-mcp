@@ -98,7 +98,7 @@ export function hashCode(str) {
  */
 export function memoize(fn, keyFn) {
     const cache = new LRUCache({ maxSize: 100, ttl: 5 * 60 * 1000 });
-    return ((...args) => {
+    return (...args) => {
         const key = keyFn ? keyFn(...args) : JSON.stringify(args);
         const cached = cache.get(key);
         if (cached !== undefined) {
@@ -107,6 +107,6 @@ export function memoize(fn, keyFn) {
         const result = fn(...args);
         cache.set(key, result);
         return result;
-    });
+    };
 }
 //# sourceMappingURL=cache.js.map

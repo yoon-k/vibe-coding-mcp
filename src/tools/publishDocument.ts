@@ -2,6 +2,12 @@ import { Platform, PublishOptions, PublishResult } from '../types/index.js';
 import { publishToNotion } from '../platforms/notion.js';
 import { publishToGitHubWiki } from '../platforms/github-wiki.js';
 import { publishToObsidian } from '../platforms/obsidian.js';
+import { publishToConfluence } from '../platforms/confluence.js';
+import { sendSlackNotification } from '../platforms/slack.js';
+import { sendDiscordNotification } from '../platforms/discord.js';
+import { createToolLogger } from '../core/logger.js';
+
+const logger = createToolLogger('publishDocument');
 
 export interface PublishDocumentInput {
   document: string;
@@ -19,6 +25,8 @@ export async function publishDocument(input: PublishDocumentInput): Promise<Publ
 
   let result: PublishResult;
 
+  logger.info('Publishing document', { platform, title });
+
   try {
     switch (platform) {
       case 'notion':
@@ -30,6 +38,33 @@ export async function publishDocument(input: PublishDocumentInput): Promise<Publ
       case 'obsidian':
         result = await publishToObsidian(document, title, options);
         break;
+      case 'confluence':
+        result = await publishToConfluence(document, title, options);
+        break;
+      case 'slack': {
+        const slackResult = await sendSlackNotification(
+          `📄 **${title}**\n\n${document.slice(0, 2000)}${document.length > 2000 ? '...' : ''}`,
+          { webhookUrl: options?.webhookUrl }
+        );
+        result = {
+          success: slackResult.success,
+          platform: 'slack',
+          error: slackResult.error
+        };
+        break;
+      }
+      case 'discord': {
+        const discordResult = await sendDiscordNotification(
+          `📄 **${title}**\n\n${document.slice(0, 2000)}${document.length > 2000 ? '...' : ''}`,
+          { webhookUrl: options?.webhookUrl }
+        );
+        result = {
+          success: discordResult.success,
+          platform: 'discord',
+          error: discordResult.error
+        };
+        break;
+      }
       default:
         result = {
           success: false,
@@ -37,7 +72,14 @@ export async function publishDocument(input: PublishDocumentInput): Promise<Publ
           error: `Unsupported platform: ${platform}`
         };
     }
+
+    if (result.success) {
+      logger.info('Document published successfully', { platform, url: result.url });
+    } else {
+      logger.warn('Document publish failed', { platform, error: result.error });
+    }
   } catch (error) {
+    logger.error('Document publish error', error as Error, { platform });
     result = {
       success: false,
       platform,
@@ -50,7 +92,7 @@ export async function publishDocument(input: PublishDocumentInput): Promise<Publ
 
 export const publishDocumentSchema = {
   name: 'muse_publish_document',
-  description: 'Publishes generated documents to external platforms (Notion, GitHub Wiki, or Obsidian).',
+  description: 'Publishes generated documents to external platforms (Notion, GitHub Wiki, Obsidian, Confluence, Slack, or Discord).',
   inputSchema: {
     type: 'object',
     properties: {
@@ -64,7 +106,7 @@ export const publishDocumentSchema = {
       },
       platform: {
         type: 'string',
-        enum: ['notion', 'github-wiki', 'obsidian'],
+        enum: ['notion', 'github-wiki', 'obsidian', 'confluence', 'slack', 'discord'],
         description: 'Target platform for publishing'
       },
       options: {
@@ -72,7 +114,7 @@ export const publishDocumentSchema = {
         properties: {
           parentPageId: {
             type: 'string',
-            description: 'Parent page ID for Notion'
+            description: 'Parent page ID for Notion or Confluence'
           },
           wikiPath: {
             type: 'string',
@@ -85,6 +127,10 @@ export const publishDocumentSchema = {
           filename: {
             type: 'string',
             description: 'Custom filename for the document'
+          },
+          webhookUrl: {
+            type: 'string',
+            description: 'Webhook URL for Slack or Discord'
           }
         }
       }

@@ -2,6 +2,7 @@
  * AST 기반 코드 분석 유틸리티
  * 함수, 클래스, 의존성을 자동으로 추출
  */
+import { memoize, hashCode } from '../core/cache.js';
 // TypeScript/JavaScript 분석
 export function analyzeTypeScript(code) {
     const functions = [];
@@ -288,8 +289,8 @@ function calculateComplexity(code) {
     }
     return complexity;
 }
-// 언어 감지 및 분석
-export function analyzeCode(code, language) {
+// 언어 감지 및 분석 (내부 구현)
+function analyzeCodeInternal(code, language) {
     const detectedLanguage = language || detectLanguageForAnalysis(code);
     switch (detectedLanguage) {
         case 'typescript':
@@ -312,6 +313,8 @@ export function analyzeCode(code, language) {
             };
     }
 }
+// Memoized 버전 (캐시된 분석 결과 재사용)
+export const analyzeCode = memoize(analyzeCodeInternal, (code, language) => `${language || 'auto'}:${hashCode(code)}`);
 function detectLanguageForAnalysis(code) {
     if (/^import\s+.*from\s+['"]|:\s*(string|number|boolean)\b/.test(code)) {
         return 'typescript';

@@ -3,6 +3,8 @@
  * 함수, 클래스, 의존성을 자동으로 추출
  */
 
+import { memoize, hashCode } from '../core/cache.js';
+
 export interface FunctionInfo {
   name: string;
   params: string[];
@@ -388,8 +390,8 @@ function calculateComplexity(code: string): number {
   return complexity;
 }
 
-// 언어 감지 및 분석
-export function analyzeCode(code: string, language?: string): CodeAnalysis {
+// 언어 감지 및 분석 (내부 구현)
+function analyzeCodeInternal(code: string, language?: string): CodeAnalysis {
   const detectedLanguage = language || detectLanguageForAnalysis(code);
 
   switch (detectedLanguage) {
@@ -413,6 +415,12 @@ export function analyzeCode(code: string, language?: string): CodeAnalysis {
       };
   }
 }
+
+// Memoized 버전 (캐시된 분석 결과 재사용)
+export const analyzeCode = memoize<[string, string | undefined], CodeAnalysis>(
+  analyzeCodeInternal,
+  (code: string, language?: string) => `${language || 'auto'}:${hashCode(code)}`
+);
 
 function detectLanguageForAnalysis(code: string): string {
   if (/^import\s+.*from\s+['"]|:\s*(string|number|boolean)\b/.test(code)) {

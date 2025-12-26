@@ -115,16 +115,24 @@ const tradeoffPatterns = {
 
 // 코드 블록 추출 (함수 내에서 새 regex 생성)
 
-// 언어 감지
+/**
+ * Detects the primary language of the given text
+ * @param text - The text to analyze
+ * @returns 'ko' if Korean characters make up more than 10% of the text, 'en' otherwise
+ */
 function detectLanguage(text: string): 'en' | 'ko' {
-  const koreanPattern = /[\uAC00-\uD7AF]/;
   const koreanCount = (text.match(/[\uAC00-\uD7AF]/g) || []).length;
   const totalChars = text.replace(/\s/g, '').length;
 
   return koreanCount / totalChars > 0.1 ? 'ko' : 'en';
 }
 
-// 카테고리 추론
+/**
+ * Infers the design decision category based on keywords in the text
+ * @param text - The decision text to analyze
+ * @param lang - The language of the text ('en' or 'ko')
+ * @returns The inferred category (architecture, implementation, library, pattern, or other)
+ */
 function inferCategory(text: string, lang: 'en' | 'ko'): DesignDecision['category'] {
   const lowerText = text.toLowerCase();
 
@@ -139,7 +147,12 @@ function inferCategory(text: string, lang: 'en' | 'ko'): DesignDecision['categor
   return 'other';
 }
 
-// 중요도 점수 계산
+/**
+ * Calculates the importance score of a design decision
+ * @param decision - The decision text
+ * @param fullText - The full conversation text for context
+ * @returns An object containing the importance level and numeric score (0-100)
+ */
 function calculateImportance(decision: string, fullText: string): { level: 'high' | 'medium' | 'low', score: number } {
   let score = 50; // 기본 점수
 
@@ -244,6 +257,24 @@ function matchPatterns(text: string, patterns: RegExp[]): string[] {
   return [...new Set(results)];
 }
 
+/**
+ * Analyzes conversation logs to extract and summarize design decisions
+ *
+ * @param input - The input parameters
+ * @param input.conversationLog - The conversation text to analyze
+ * @param input.projectContext - Optional project context for better categorization
+ * @param input.language - Language setting ('en', 'ko', or 'auto' for detection)
+ * @param input.includeImportanceScore - Whether to include importance scoring
+ * @param input.extractRelatedCode - Whether to extract related code blocks
+ * @param input.maxDecisions - Maximum number of decisions to extract
+ * @returns Object containing decisions array, summary text, and statistics
+ *
+ * @example
+ * const result = summarizeDesignDecisions({
+ *   conversationLog: "We decided to use React instead of Vue because...",
+ *   language: 'auto'
+ * });
+ */
 export function summarizeDesignDecisions(input: SummarizeDesignDecisionsInput): SummarizeDesignDecisionsOutput {
   const lang = input.language === 'auto' || !input.language
     ? detectLanguage(input.conversationLog)
