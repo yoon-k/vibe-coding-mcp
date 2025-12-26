@@ -47,19 +47,28 @@ This MCP server provides 7 tools for managing vibe coding documentation:
 ### Claude Code (Recommended)
 
 ```bash
-claude mcp add vibe-coding-mcp npx github:MUSE-CODE-SPACE/vibe-coding-mcp
+claude mcp add vibe-coding-mcp npx vibe-coding-mcp
+```
+
+### npm
+
+```bash
+npm install -g vibe-coding-mcp
 ```
 
 ### Claude Desktop
 
 Add to `claude_desktop_config.json`:
 
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
 ```json
 {
   "mcpServers": {
     "vibe-coding-mcp": {
       "command": "npx",
-      "args": ["github:MUSE-CODE-SPACE/vibe-coding-mcp"]
+      "args": ["vibe-coding-mcp"]
     }
   }
 }
