@@ -29,6 +29,19 @@ This MCP server provides 7 tools for managing vibe coding documentation:
 - **Security**: Command injection prevention (exec → spawn), path sanitization
 - **Performance**: LRU cache, regex cache, memoization utilities
 
+### Security (v2.2)
+- **Path Traversal Prevention**: Validates file paths stay within allowed directories
+- **SSRF Protection**: Webhook URL validation for Slack/Discord
+- **Network Timeout**: AbortController-based request timeout (30s default)
+- **Retry Logic**: Exponential backoff with configurable retry attempts
+
+### Enhanced Quality (v2.3)
+- **Structured Logging**: JSON-based logging with child loggers per tool
+- **Configuration Validation**: Startup validation for all platform configurations
+- **Platform Expansion**: Full support for 6 platforms (Notion, GitHub Wiki, Obsidian, Confluence, Slack, Discord)
+- **AST Memoization**: Cached code analysis for improved performance
+- **Test Coverage**: 81 tests with 85%+ coverage on core modules
+
 ## Installation
 
 ### Claude Code (Recommended)
@@ -55,13 +68,25 @@ Add to `claude_desktop_config.json`:
 ## Environment Variables
 
 ```env
-# Notion API (optional, for publish_document)
+# Notion API (optional)
 NOTION_API_KEY=your_notion_api_key_here
 NOTION_DATABASE_ID=your_database_id_here
 
 # GitHub (optional, for Wiki publishing)
 GITHUB_TOKEN=your_github_token_here
 GITHUB_REPO=owner/repo
+
+# Confluence (optional)
+CONFLUENCE_BASE_URL=https://your-domain.atlassian.net
+CONFLUENCE_USERNAME=your_email@example.com
+CONFLUENCE_API_TOKEN=your_api_token_here
+CONFLUENCE_SPACE_KEY=YOURSPACE
+
+# Slack (optional, webhook URL passed via tool parameter)
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+
+# Discord (optional, webhook URL passed via tool parameter)
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 ```
 
 ## Demo Scenarios
@@ -95,18 +120,25 @@ Claude: [Uses collect_code_context → create_session_log]
 - **Notion**: Full API integration with page creation
 - **GitHub Wiki**: Git-based wiki updates
 - **Obsidian**: Local vault file storage with frontmatter support
+- **Confluence**: Atlassian Confluence page publishing
+- **Slack**: Webhook-based message publishing
+- **Discord**: Webhook-based message publishing
 
 ## Project Structure
 
 ```
 src/
-├── stdio.ts              # MCP server entry point
+├── stdio.ts              # MCP server entry point (stdio transport)
+├── index.ts              # HTTP/SSE server entry point
 ├── core/
 │   ├── schemas.ts        # Zod validation schemas
 │   ├── errors.ts         # Structured error classes
-│   └── cache.ts          # LRU cache & memoization
+│   ├── cache.ts          # LRU cache & memoization
+│   ├── security.ts       # Path traversal, SSRF, timeout utilities
+│   ├── logger.ts         # Structured JSON logging
+│   └── config.ts         # Platform configuration validation
 ├── tools/                # 7 MCP tools
-├── platforms/            # Notion, GitHub Wiki, Obsidian
+├── platforms/            # Notion, GitHub Wiki, Obsidian, Confluence, Slack, Discord
 ├── types/                # TypeScript interfaces
 └── utils/                # Markdown, AST, diagram utilities
 ```
@@ -120,8 +152,17 @@ npm run dev
 # Build
 npm run build
 
-# Start
+# Start (HTTP/SSE mode)
 npm start
+
+# Start (stdio mode for Claude Desktop)
+npm run stdio
+
+# Run tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
 ```
 
 ## Dependencies
