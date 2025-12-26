@@ -1,13 +1,22 @@
 {
   "name": "vibe-coding-mcp",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "MCP server for automatically collecting, summarizing, documenting, and publishing vibe coding sessions",
   "main": "dist/index.js",
   "type": "module",
+  "bin": {
+    "vibe-coding-mcp": "dist/stdio.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
+    "stdio": "node dist/stdio.js",
     "dev": "tsc --watch",
+    "prepublishOnly": "npm run build",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathIgnorePatterns='integration'",
     "test:tools": "node scripts/test-tools.mjs",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
@@ -19,10 +28,21 @@
     "documentation",
     "notion",
     "obsidian",
-    "github-wiki"
+    "github-wiki",
+    "claude",
+    "ai-coding",
+    "model-context-protocol"
   ],
-  "author": "",
+  "author": "yoon-k",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yoon-k/vibe-coding-mcp.git"
+  },
+  "homepage": "https://github.com/yoon-k/vibe-coding-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/yoon-k/vibe-coding-mcp/issues"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "@notionhq/client": "^2.2.0",
