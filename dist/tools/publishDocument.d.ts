@@ -47,6 +47,10 @@ export declare const publishDocumentSchema: {
                         type: string;
                         description: string;
                     };
+                    webhookUrl: {
+                        type: string;
+                        description: string;
+                    };
                 };
             };
         };

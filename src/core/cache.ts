@@ -122,13 +122,13 @@ export function hashCode(str: string): string {
 /**
  * Memoization decorator for functions
  */
-export function memoize<T extends (...args: unknown[]) => unknown>(
-  fn: T,
-  keyFn?: (...args: Parameters<T>) => string
-): T {
-  const cache = new LRUCache<string, ReturnType<T>>({ maxSize: 100, ttl: 5 * 60 * 1000 });
+export function memoize<TArgs extends unknown[], TResult>(
+  fn: (...args: TArgs) => TResult,
+  keyFn?: (...args: TArgs) => string
+): (...args: TArgs) => TResult {
+  const cache = new LRUCache<string, TResult>({ maxSize: 100, ttl: 5 * 60 * 1000 });
 
-  return ((...args: Parameters<T>): ReturnType<T> => {
+  return (...args: TArgs): TResult => {
     const key = keyFn ? keyFn(...args) : JSON.stringify(args);
     const cached = cache.get(key);
 
@@ -136,8 +136,8 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
       return cached;
     }
 
-    const result = fn(...args) as ReturnType<T>;
+    const result = fn(...args);
     cache.set(key, result);
     return result;
-  }) as T;
+  };
 }

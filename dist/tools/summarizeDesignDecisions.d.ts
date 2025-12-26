@@ -25,6 +25,24 @@ export interface SummarizeDesignDecisionsOutput {
         topKeywords: string[];
     };
 }
+/**
+ * Analyzes conversation logs to extract and summarize design decisions
+ *
+ * @param input - The input parameters
+ * @param input.conversationLog - The conversation text to analyze
+ * @param input.projectContext - Optional project context for better categorization
+ * @param input.language - Language setting ('en', 'ko', or 'auto' for detection)
+ * @param input.includeImportanceScore - Whether to include importance scoring
+ * @param input.extractRelatedCode - Whether to extract related code blocks
+ * @param input.maxDecisions - Maximum number of decisions to extract
+ * @returns Object containing decisions array, summary text, and statistics
+ *
+ * @example
+ * const result = summarizeDesignDecisions({
+ *   conversationLog: "We decided to use React instead of Vue because...",
+ *   language: 'auto'
+ * });
+ */
 export declare function summarizeDesignDecisions(input: SummarizeDesignDecisionsInput): SummarizeDesignDecisionsOutput;
 export declare const summarizeDesignDecisionsSchema: {
     name: string;

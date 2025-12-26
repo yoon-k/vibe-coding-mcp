@@ -46,6 +46,7 @@ export interface PublishOptions {
     wikiPath?: string;
     vaultPath?: string;
     filename?: string;
+    webhookUrl?: string;
 }
 export interface PublishResult {
     success: boolean;

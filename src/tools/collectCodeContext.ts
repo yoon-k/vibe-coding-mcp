@@ -1,5 +1,6 @@
 import { CodeBlock, CodeContext } from '../types/index.js';
 import { generateId, getCurrentTimestamp, extractCodeBlocks } from '../utils/markdown.js';
+import { hashCode } from '../core/cache.js';
 
 export interface CollectCodeContextInput {
   codeBlocks?: CodeBlock[];
@@ -155,18 +156,6 @@ function inferFilename(code: string, language: string): string | undefined {
   }
 
   return undefined;
-}
-
-// 코드 블록 해시 생성 (중복 체크용)
-function hashCode(code: string): string {
-  const normalized = code.trim().replace(/\s+/g, ' ');
-  let hash = 0;
-  for (let i = 0; i < normalized.length; i++) {
-    const char = normalized.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return hash.toString(16);
 }
 
 // 중복 제거

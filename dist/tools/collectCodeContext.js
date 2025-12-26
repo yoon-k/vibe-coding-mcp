@@ -1,4 +1,5 @@
 import { generateId, getCurrentTimestamp, extractCodeBlocks } from '../utils/markdown.js';
+import { hashCode } from '../core/cache.js';
 // 언어 감지를 위한 패턴
 const languagePatterns = {
     typescript: [
@@ -123,17 +124,6 @@ function inferFilename(code, language) {
         return funcMatch[1] + (extensions[language] || '.txt');
     }
     return undefined;
-}
-// 코드 블록 해시 생성 (중복 체크용)
-function hashCode(code) {
-    const normalized = code.trim().replace(/\s+/g, ' ');
-    let hash = 0;
-    for (let i = 0; i < normalized.length; i++) {
-        const char = normalized.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-    }
-    return hash.toString(16);
 }
 // 중복 제거
 function removeDuplicateBlocks(blocks) {

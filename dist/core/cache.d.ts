@@ -34,6 +34,6 @@ export declare function hashCode(str: string): string;
 /**
  * Memoization decorator for functions
  */
-export declare function memoize<T extends (...args: unknown[]) => unknown>(fn: T, keyFn?: (...args: Parameters<T>) => string): T;
+export declare function memoize<TArgs extends unknown[], TResult>(fn: (...args: TArgs) => TResult, keyFn?: (...args: TArgs) => string): (...args: TArgs) => TResult;
 export {};
 //# sourceMappingURL=cache.d.ts.map

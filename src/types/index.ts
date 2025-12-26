@@ -59,10 +59,11 @@ export interface DocumentOptions {
 // 플랫폼 발행 옵션
 export interface PublishOptions {
   platform: Platform;
-  parentPageId?: string;  // Notion
+  parentPageId?: string;  // Notion, Confluence
   wikiPath?: string;      // GitHub Wiki
   vaultPath?: string;     // Obsidian
   filename?: string;
+  webhookUrl?: string;    // Slack, Discord
 }
 
 // 발행 결과
